@@ -5,7 +5,7 @@ from datetime import datetime
 import os
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = "your_secret_key"
+app.config["SECRET_KEY"] = "Reversal-Rigging9-Subduing-Earful"
 socketio = SocketIO(app)
 
 messages = []
