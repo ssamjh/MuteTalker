@@ -1,0 +1,18 @@
+services:
+  python:
+    build:
+      context: ./python
+      dockerfile: Dockerfile
+    volumes:
+      - ./python:/app
+    ports:
+      - "5001:5000"
+    restart: unless-stopped
+
+
+  tts-api:
+    container_name: tts-api
+    devices:
+      - /dev/snd
+    image: pedroetb/tts-api
+    restart: unless-stopped

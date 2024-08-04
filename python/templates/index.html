@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebSocket Communication</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/socket.io@4.7.5/client-dist/socket.io.min.js"></script>
+  </head>
+  <body>
+    <div class="container mt-5">
+      <div class="row">
+        <div class="col-md-6 offset-md-3">
+          <h2 class="text-center mb-4">Communication App</h2>
+          <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link active"
+                id="transmit-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#transmit"
+                type="button"
+                role="tab">
+                Transmit
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link"
+                id="receive-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#receive"
+                type="button"
+                role="tab">
+                Receive
+              </button>
+            </li>
+          </ul>
+          <div class="tab-content" id="myTabContent">
+            <div
+              class="tab-pane fade show active"
+              id="transmit"
+              role="tabpanel">
+              <div class="mt-3">
+                <textarea
+                  id="message-input"
+                  class="form-control mb-2"
+                  rows="3"
+                  placeholder="Enter your message"></textarea>
+                <button id="send-btn" class="btn btn-primary">Send</button>
+              </div>
+            </div>
+            <div class="tab-pane fade" id="receive" role="tabpanel">
+              <div id="audio-player" class="mt-3">
+                <audio id="audio" controls>
+                  <source src="" type="audio/mpeg" />
+                  Your browser does not support the audio element.
+                </audio>
+                <button id="listen-btn" class="btn btn-success mt-2">
+                  Listen
+                </button>
+                <div
+                  id="new-audio-alert"
+                  class="alert alert-info mt-2"
+                  style="display: none">
+                  New audio message available. Click 'Listen' to play.
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="message-container" class="mt-4">
+            <h4>Messages (Newest at Top)</h4>
+            <ul id="message-list" class="list-group"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      const socket = io();
+      const messageInput = document.getElementById("message-input");
+      const sendBtn = document.getElementById("send-btn");
+      const messageList = document.getElementById("message-list");
+      const audio = document.getElementById("audio");
+      const listenBtn = document.getElementById("listen-btn");
+      const newAudioAlert = document.getElementById("new-audio-alert");
+
+      let audioActivated = false;
+
+      sendBtn.addEventListener("click", () => {
+        const message = messageInput.value.trim();
+        if (message) {
+          socket.emit("send_message", { message: message });
+          messageInput.value = "";
+        }
+      });
+
+      listenBtn.addEventListener("click", () => {
+        audioActivated = true;
+        audio.play().catch((error) => {
+          console.error("Audio playback failed:", error);
+        });
+        newAudioAlert.style.display = "none";
+      });
+
+      socket.on("new_message", (data) => {
+        const li = document.createElement("li");
+        li.className = "list-group-item";
+        li.textContent = `${data.timestamp}: ${data.text}`;
+        messageList.insertBefore(li, messageList.firstChild);
+
+        // Update audio source
+        audio.src = "/get-audio?" + new Date().getTime();
+
+        if (audioActivated) {
+          audio.play().catch((error) => {
+            console.error("Audio playback failed:", error);
+            newAudioAlert.style.display = "block";
+          });
+        } else {
+          newAudioAlert.style.display = "block";
+        }
+      });
+
+      // Fetch existing messages on page load
+      fetch("/get-messages")
+        .then((response) => response.json())
+        .then((data) => {
+          data.messages.forEach((message) => {
+            const li = document.createElement("li");
+            li.className = "list-group-item";
+            li.textContent = `${message.timestamp}: ${message.text}`;
+            messageList.appendChild(li);
+          });
+        });
+
+      document
+        .getElementById("message-input")
+        .addEventListener("keydown", function (event) {
+          if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            document.getElementById("send-btn").click();
+          }
+        });
+    </script>
+  </body>
+</html>
