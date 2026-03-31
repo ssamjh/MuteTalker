@@ -1,6 +1,6 @@
 # MuteTalker
 
-A Discord bot that reads your text messages aloud in a voice channel using [Piper TTS]([https://github.com/rhasspy/piper](https://github.com/OHF-Voice/piper1-gpl]). Useful if you're muted or prefer to type while in a call.
+A Discord bot that reads your text messages aloud in a voice channel using [Piper TTS](https://github.com/OHF-Voice/piper1-gpl). Useful if you're muted or prefer to type while in a call.
 
 ## How it works
 
