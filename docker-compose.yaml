@@ -1,0 +1,12 @@
+services:
+  mutetalker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      BOT_TOKEN: ""
+      VOICE_FILE: /app/voices/alba.onnx
+      TTS_START_COMMAND: tts_start
+      TTS_STOP_COMMAND: tts_stop
+      DEBUGGING: "false"
